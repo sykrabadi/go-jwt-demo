@@ -31,6 +31,11 @@ type UserForToken struct {
 	Password  string `json:"password"`
 }
 
+type Token struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 type CustomClaims struct {
 	jwt.StandardClaims
 	UserForToken
@@ -40,6 +45,23 @@ func NewJWTManager(accessTokenSecretKey, refreshTokenSecretKey string, accessTok
 	refreshTokenDuration time.Duration) *TokenManager {
 	return &TokenManager{accessTokenSecretKey, refreshTokenSecretKey,
 		accessTokenDuration, refreshTokenDuration}
+}
+
+func GenerateRefreshToken(user *UserForToken) (string, error) {
+	t := time.Now().UTC()
+	claims := CustomClaims{
+		StandardClaims: jwt.StandardClaims{
+			Subject:   subject,
+			ExpiresAt: t.Add(JWT_ACCESS_TOKEN_DURATION).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(JWT_SIGNING_METHOD, claims)
+	signedToken, err := token.SignedString([]byte(JWT_REFRESH_TOKEN_SECRET))
+	if err != nil {
+		return "", err
+	}
+	return signedToken, nil
 }
 
 func GenerateAccessToken(user *UserForToken) (string, error) {
