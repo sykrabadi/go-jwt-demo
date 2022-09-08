@@ -2,7 +2,6 @@ package transport
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"jwt-demo/util/jwt"
 	"log"
@@ -51,12 +50,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(userDataFromFile["email"] != userInfo.UserEmail)
-	fmt.Println(userDataFromFile["password"] != userInfo.Password)
 
 	// TODO : Fix checking mechanism
-	if (userDataFromFile["email"] != userInfo.UserEmail) && (userDataFromFile["password"] != userInfo.Password) {
-		log.Fatalln("Email from file and request are unmatch")
+	if (userDataFromFile["email"] != userInfo.UserEmail) || (userDataFromFile["password"] != userInfo.Password) {
+		log.Println("Email from file and request are unmatch")
+		http.Error(w, "Email from file and request are unmatch", http.StatusBadRequest)
 		return
 	}
 
