@@ -1,6 +1,8 @@
 package jwt
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -45,6 +47,31 @@ func NewJWTManager(accessTokenSecretKey, refreshTokenSecretKey string, accessTok
 	refreshTokenDuration time.Duration) *TokenManager {
 	return &TokenManager{accessTokenSecretKey, refreshTokenSecretKey,
 		accessTokenDuration, refreshTokenDuration}
+}
+
+func VerifyAccessToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString,
+		&CustomClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				return nil, errors.New("Unexpected Token Signing Method")
+			}
+
+			return []byte(JWT_ACCESS_TOKEN_SECRET), nil
+		},
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("invalid token: %w", err)
+	}
+
+	claims, ok := token.Claims.(*CustomClaims)
+	if !ok {
+		return nil, errors.New("Invalid Token Claims")
+	}
+
+	return claims, nil
 }
 
 func GenerateRefreshToken(user *UserForToken) (string, error) {

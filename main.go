@@ -12,6 +12,7 @@ const (
 
 func main() {
 	http.HandleFunc("/login", transport.Login)
+	http.HandleFunc("/validatetest", transport.TestValidate)
 	server := new(http.Server)
 	server.Addr = SERVER_ADDR
 	log.Println("Starting server at", SERVER_ADDR)

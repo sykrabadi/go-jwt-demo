@@ -7,11 +7,25 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Message struct {
 	Id   int64  `json:"id"`
 	Name string `json:"name"`
+}
+
+func TestValidate(w http.ResponseWriter, r *http.Request) {
+	authorizationHeader := r.Header.Get("Authorization")
+	if !strings.Contains(authorizationHeader, "Bearer") {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
+	log.Println("Good to go")
+	authToken := strings.Replace(authorizationHeader, "Bearer", "", -1)
+	log.Println(authToken)
+	// TODO: Use jwt.VerifyAccessToken() to verify the access token
+	//jwt.VerifyAccessToken()
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
