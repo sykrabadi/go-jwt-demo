@@ -106,7 +106,7 @@ func GenerateAccessToken(user *UserForToken) (string, error) {
 		},
 	}
 
-	token := jwt.NewWithClaims(JWT_SIGNING_METHOD, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString([]byte(JWT_ACCESS_TOKEN_SECRET))
 	if err != nil {
 		return "", err

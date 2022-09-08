@@ -21,11 +21,14 @@ func TestValidate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
-	log.Println("Good to go")
-	authToken := strings.Replace(authorizationHeader, "Bearer", "", -1)
-	log.Println(authToken)
-	// TODO: Use jwt.VerifyAccessToken() to verify the access token
-	//jwt.VerifyAccessToken()
+	authToken := strings.Replace(authorizationHeader, "Bearer ", "", -1)
+	_, err := jwt.VerifyAccessToken(authToken)
+	if err != nil {
+		http.Error(w, "Unable To Access", http.StatusForbidden)
+		log.Println(err)
+		return
+	}
+	w.Write([]byte("Good To GO :)"))
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
